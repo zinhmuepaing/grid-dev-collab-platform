@@ -1,6 +1,6 @@
-# Grid — Student Innovator Matchmaker
+# Grid — Developer Collaboration Platform
 
-#### Video Demo: &lt;URL HERE&gt;
+#### Video Demo: https://youtu.be/aGGeS-oXjd0
 
 #### Description:
 
