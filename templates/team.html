@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}Team{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top:calc(var(--spacing-unit)*4)">
+    <!-- Loading state -->
+    <div id="teamLoading" class="text-center" style="padding:48px">
+        <p class="text-muted">Loading team...</p>
+    </div>
+
+    <!-- Team content (hidden until loaded) -->
+    <div id="teamContent" style="display:none">
+        <!-- Team header -->
+        <div class="page-header" style="display:flex;align-items:center;gap:calc(var(--spacing-unit)*2);flex-wrap:wrap">
+            <div style="flex:1">
+                <h1 id="teamName"></h1>
+                <p class="text-muted" id="teamEvent"></p>
+            </div>
+            <div id="teamActions" style="display:flex;gap:var(--spacing-unit)"></div>
+        </div>
+
+        <!-- Discord invite banner -->
+        <div id="discordBanner" class="card" style="display:none;margin-bottom:calc(var(--spacing-unit)*3);padding:calc(var(--spacing-unit)*2);border-color:var(--color-primary)">
+            <div style="display:flex;align-items:center;gap:calc(var(--spacing-unit)*2);flex-wrap:wrap">
+                <div style="flex:1">
+                    <strong>Discord Workspace</strong>
+                    <p class="text-muted" style="margin:0">Your team workspace is ready.</p>
+                </div>
+                <a id="discordLink" href="#" target="_blank" class="btn btn-primary">Join Discord</a>
+            </div>
+        </div>
+
+        <!-- Members section -->
+        <section style="margin-bottom:calc(var(--spacing-unit)*4)">
+            <h2>Members</h2>
+            <div id="membersList" class="grid grid-auto-fill" style="margin-top:calc(var(--spacing-unit)*2)"></div>
+        </section>
+
+        <!-- Pending invites section (owner only) -->
+        <section id="pendingSection" style="display:none;margin-bottom:calc(var(--spacing-unit)*4)">
+            <h2>Pending Invites</h2>
+            <div id="pendingList" style="margin-top:calc(var(--spacing-unit)*2)"></div>
+        </section>
+    </div>
+</div>
+
+<!-- Invite modal -->
+<div class="modal-overlay" id="inviteModal" style="display:none">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Invite a Teammate</h3>
+            <button class="modal-close" id="inviteModalClose" aria-label="Close">&times;</button>
+        </div>
+        <div class="modal-body">
+            <input type="text" class="form-input" id="inviteSearch" placeholder="Search by username...">
+            <div id="inviteResults" style="margin-top:var(--spacing-unit);max-height:240px;overflow-y:auto"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    window.__teamId = {{ team_id }};
+</script>
+<script type="module">
+    import { initTeamPage } from '/static/js/team.js';
+    document.addEventListener('DOMContentLoaded', () => {
+        initTeamPage();
+    });
+</script>
+{% endblock %}

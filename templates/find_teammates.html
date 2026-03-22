@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}Find Teammates{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <h1>Find Teammates</h1>
+        <p>Search by skills to discover your ideal hackathon partners</p>
+    </div>
+
+    <!-- Filter Section -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <label class="text-sm font-medium text-white mb-2" style="display:block;">Select skills you're looking for</label>
+            <div id="skillsFilter" class="flex-row flex-wrap gap-1 mb-3">
+                <!-- Skill toggle badges rendered by JS -->
+            </div>
+            <div id="skillsLoading" class="text-muted text-sm">Loading skills...</div>
+        </div>
+        <div class="card-footer">
+            <span id="selectedCount" class="text-muted text-sm">0 skills selected</span>
+            <div class="btn-group">
+                <button id="clearSkillsBtn" class="btn btn-sm" disabled>Clear</button>
+                <button id="searchBtn" class="btn btn-primary btn-sm" disabled>
+                    <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
+                        <path d="M11.5 7a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0Zm-.82 4.74a6 6 0 1 1 1.06-1.06l3.04 3.04a.75.75 0 1 1-1.06 1.06l-3.04-3.04Z"/>
+                    </svg>
+                    Search
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Initial State (before search) -->
+    <div id="initialState" class="empty-state">
+        <h3>Select skills to get started</h3>
+        <p>Choose the skills you need on your team, then hit Search to find matching teammates.</p>
+    </div>
+
+    <!-- Loading State -->
+    <div id="resultsLoading" class="flex-center p-4 hidden">
+        <span class="text-muted">Finding teammates...</span>
+    </div>
+
+    <!-- Results Section -->
+    <div id="resultsSection" class="hidden">
+        <div class="flex-between mb-3">
+            <h2 id="resultsTitle">Results</h2>
+        </div>
+        <div id="resultsGrid" class="grid grid-auto-fill">
+            <!-- User match cards rendered by JS -->
+        </div>
+    </div>
+
+    <!-- No Results State -->
+    <div id="noResults" class="empty-state hidden">
+        <h3>No teammates found</h3>
+        <p>Try selecting different skills or fewer filters to broaden your search.</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script type="module">
+    import { initMatchmaking } from "{{ url_for('static', filename='js/matchmaking.js') }}";
+    initMatchmaking();
+</script>
+{% endblock %}

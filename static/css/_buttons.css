@@ -1,0 +1,221 @@
+/* ===========================================
+   Grid — Buttons
+   =========================================== */
+
+/* ---- Base Button ---- */
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 8px 16px;
+    font-family: var(--font-sans);
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.4;
+    color: var(--color-text);
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    cursor: pointer;
+    text-decoration: none;
+    white-space: nowrap;
+    user-select: none;
+    transition: background-color var(--transition-fast),
+                border-color var(--transition-fast),
+                color var(--transition-fast),
+                box-shadow var(--transition-fast);
+}
+
+.btn:hover {
+    background-color: var(--color-surface-hover);
+    border-color: #484f58;
+    color: #e6edf3;
+    text-decoration: none;
+}
+
+.btn:active {
+    background-color: #0d1117;
+    transition-duration: 50ms;
+}
+
+.btn:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+}
+
+.btn:disabled,
+.btn.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/* ---- Primary (Blue) ---- */
+
+.btn-primary {
+    color: #ffffff;
+    background-color: #1f6feb;
+    border-color: #1f6feb;
+}
+
+.btn-primary:hover {
+    background-color: #388bfd;
+    border-color: #388bfd;
+    color: #ffffff;
+}
+
+.btn-primary:active {
+    background-color: #1a5fc7;
+    border-color: #1a5fc7;
+}
+
+/* ---- Accent (Green) ---- */
+
+.btn-accent {
+    color: #ffffff;
+    background-color: #238636;
+    border-color: #238636;
+}
+
+.btn-accent:hover {
+    background-color: #2ea043;
+    border-color: #2ea043;
+    color: #ffffff;
+}
+
+.btn-accent:active {
+    background-color: #1c6e2e;
+    border-color: #1c6e2e;
+}
+
+/* ---- Danger (Red) ---- */
+
+.btn-danger {
+    color: #ffffff;
+    background-color: #da3633;
+    border-color: #da3633;
+}
+
+.btn-danger:hover {
+    background-color: #f85149;
+    border-color: #f85149;
+    color: #ffffff;
+}
+
+.btn-danger:active {
+    background-color: #b62324;
+    border-color: #b62324;
+}
+
+/* ---- Outline ---- */
+
+.btn-outline {
+    color: var(--color-primary);
+    background-color: transparent;
+    border-color: var(--color-border);
+}
+
+.btn-outline:hover {
+    background-color: var(--color-primary-muted);
+    border-color: var(--color-primary);
+    color: var(--color-primary-hover);
+}
+
+.btn-outline:active {
+    background-color: rgba(88, 166, 255, 0.1);
+}
+
+/* ---- GitHub OAuth Button ---- */
+
+.btn-github {
+    color: #ffffff;
+    background-color: #24292f;
+    border-color: #30363d;
+    font-size: var(--text-base);
+    padding: 12px 24px;
+}
+
+.btn-github:hover {
+    background-color: #30363d;
+    border-color: #484f58;
+    color: #ffffff;
+}
+
+.btn-github:active {
+    background-color: #1c2024;
+}
+
+.btn-github img {
+    width: 20px;
+    height: 20px;
+}
+
+/* ---- Sizes ---- */
+
+.btn-sm {
+    padding: 4px 10px;
+    font-size: var(--text-xs);
+    gap: 4px;
+}
+
+.btn-lg {
+    padding: 12px 24px;
+    font-size: var(--text-base);
+    gap: 10px;
+}
+
+/* ---- Block (full width) ---- */
+
+.btn-block {
+    display: flex;
+    width: 100%;
+}
+
+/* ---- Button Group ---- */
+
+.btn-group {
+    display: flex;
+    gap: var(--spacing-1);
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+/* ---- Icon-only Button ---- */
+
+.btn-icon {
+    padding: 8px;
+    line-height: 1;
+}
+
+.btn-icon.btn-sm {
+    padding: 4px;
+}
+
+.btn-icon.btn-lg {
+    padding: 12px;
+}
+
+/* ---- Loading State ---- */
+
+.btn.loading {
+    position: relative;
+    color: transparent;
+    pointer-events: none;
+}
+
+.btn.loading::after {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: #ffffff;
+    border-radius: 50%;
+    animation: btn-spinner 0.6s linear infinite;
+}
+
+@keyframes btn-spinner {
+    to { transform: rotate(360deg); }
+}

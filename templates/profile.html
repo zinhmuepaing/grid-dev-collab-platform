@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+
+{% block title %}Profile{% endblock %}
+
+{% block content %}
+<div class="container container-narrow">
+    <!-- Profile Header -->
+    <div class="card" style="margin-bottom: var(--spacing-4);">
+        <div class="flex-row" style="gap: var(--spacing-3); flex-wrap: wrap;">
+            <img
+                id="profile-avatar"
+                src="{{ url_for('static', filename='img/default-avatar.svg') }}"
+                alt="User avatar"
+                style="width: 96px; height: 96px; border-radius: 50%; border: 3px solid var(--color-border); object-fit: cover; flex-shrink: 0;"
+            >
+            <div style="flex: 1; min-width: 200px;">
+                <h1 id="profile-display-name" style="margin-bottom: 2px;">Loading...</h1>
+                <p id="profile-handle" style="color: var(--color-text-muted); font-family: var(--font-mono); font-size: var(--text-sm); margin-bottom: var(--spacing-1);">@{{ username }}</p>
+                <p id="profile-bio" style="color: var(--color-text); font-size: var(--text-sm); line-height: var(--leading-normal);"></p>
+            </div>
+            <div class="flex-col" style="gap: var(--spacing-1); align-self: flex-start;" id="profile-actions">
+                <!-- Populated by JS: Edit Profile or Message button -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Skills Section -->
+    <div class="card" style="margin-bottom: var(--spacing-4);">
+        <div class="card-header">
+            <h2 style="margin: 0; font-size: var(--text-xl);">Skills</h2>
+        </div>
+        <div class="card-body">
+            <div id="profile-skills" class="flex-row flex-wrap" style="gap: 8px;">
+                <span class="skill-badge" style="opacity: 0.5;">Loading skills...</span>
+            </div>
+            <div id="profile-skills-empty" class="empty-state" style="display: none; padding: var(--spacing-4) 0;">
+                <p>No skills listed yet.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Availability Section -->
+    <div class="card">
+        <div class="card-header">
+            <h2 style="margin: 0; font-size: var(--text-xl);">Availability</h2>
+        </div>
+        <div class="card-body">
+            <div id="availability-matrix-readonly"></div>
+            <div class="matrix-legend" style="margin-top: var(--spacing-2);">
+                <div class="matrix-legend-item">
+                    <div class="matrix-legend-swatch swatch-available"></div>
+                    <span>Available</span>
+                </div>
+                <div class="matrix-legend-item">
+                    <div class="matrix-legend-swatch swatch-unavailable"></div>
+                    <span>Unavailable</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script type="module">
+    import { initReadOnlyMatrix } from '/static/js/matrix.js';
+    import api from '/static/js/api.js';
+    import { fetchLikeStatuses, buildLikeButton } from '/static/js/likes.js';
+
+    const username = {{ username | tojson }};
+    let profileUserId = null;
+
+    async function loadProfile() {
+        try {
+            // First, resolve the username to a user object
+            // The route passes the username; we fetch user data via API
+            // If username is numeric, treat as user ID; otherwise look up by handle
+            const endpoint = /^\d+$/.test(username)
+                ? `/api/users/${username}`
+                : `/api/users/${username}`;
+
+            const data = await api.get(endpoint);
+            const user = data.user;
+            profileUserId = user.id;
+
+            // Populate header
+            const avatarEl = document.getElementById('profile-avatar');
+            avatarEl.src = user.avatar_url || '{{ url_for("static", filename="img/default-avatar.svg") }}';
+            const displayName = user.display_name || user.github_handle || user.email || 'User';
+            avatarEl.alt = `${displayName}'s avatar`;
+
+            document.getElementById('profile-display-name').textContent = displayName;
+            const handleEl = document.getElementById('profile-handle');
+            if (user.github_handle) {
+                handleEl.textContent = `@${user.github_handle}`;
+            } else if (user.email) {
+                handleEl.textContent = user.email;
+            } else {
+                handleEl.style.display = 'none';
+            }
+            document.getElementById('profile-bio').textContent = user.bio || '';
+
+            // Update page title
+            document.title = `${displayName} — Grid`;
+
+            // Populate skills
+            const skillsContainer = document.getElementById('profile-skills');
+            const skillsEmpty = document.getElementById('profile-skills-empty');
+            skillsContainer.innerHTML = '';
+
+            if (data.skills && data.skills.length > 0) {
+                data.skills.forEach(skill => {
+                    const badge = document.createElement('span');
+                    badge.className = `skill-badge ${skill.level || 'intermediate'}`;
+                    badge.textContent = skill.name;
+                    skillsContainer.appendChild(badge);
+                });
+                skillsEmpty.style.display = 'none';
+            } else {
+                skillsEmpty.style.display = 'block';
+            }
+
+            // Render read-only availability matrix
+            if (data.availability && data.availability.length > 0) {
+                initReadOnlyMatrix('#availability-matrix-readonly', data.availability);
+            } else {
+                initReadOnlyMatrix('#availability-matrix-readonly', []);
+            }
+
+            // Action buttons
+            const actionsEl = document.getElementById('profile-actions');
+            actionsEl.innerHTML = '';
+
+            try {
+                const meData = await api.get('/auth/me');
+                const currentUserId = meData.user.id;
+
+                if (currentUserId === user.id) {
+                    const editBtn = document.createElement('a');
+                    editBtn.href = '/profile/edit';
+                    editBtn.className = 'btn btn-outline';
+                    editBtn.textContent = 'Edit Profile';
+                    actionsEl.appendChild(editBtn);
+                } else {
+                    const msgBtn = document.createElement('a');
+                    msgBtn.href = `/inbox?user=${user.id}`;
+                    msgBtn.className = 'btn btn-primary';
+                    msgBtn.textContent = 'Message';
+                    actionsEl.appendChild(msgBtn);
+
+                    // Like button
+                    try {
+                        const statuses = await fetchLikeStatuses([user.id]);
+                        const likeStatus = statuses.get(user.id) || { i_liked: false, they_liked: false, mutual: false };
+                        const likeBtn = buildLikeButton(user.id, likeStatus, null, {
+                            displayName: displayName,
+                            avatarUrl: user.avatar_url || ''
+                        });
+                        actionsEl.appendChild(likeBtn);
+                    } catch (likeErr) {
+                        // non-critical
+                    }
+                }
+            } catch {
+                // Not logged in — no action buttons
+            }
+
+        } catch (err) {
+            document.getElementById('profile-display-name').textContent = 'User not found';
+            document.getElementById('profile-bio').textContent = 'This profile could not be loaded.';
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', loadProfile);
+</script>
+{% endblock %}

@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+
+{% block title %}Complete Your Profile{% endblock %}
+
+{% block content %}
+<div class="container container-narrow">
+    <div class="page-header" style="text-align: center;">
+        <h1>Complete Your Profile</h1>
+        <p>Set up your profile so teammates can find you</p>
+    </div>
+
+    <!-- Step Indicator -->
+    <div class="flex-row" style="justify-content: center; gap: 12px; margin-bottom: var(--spacing-4);">
+        <span class="skill-badge advanced" id="step-indicator-1">1. Bio</span>
+        <span style="color: var(--color-text-muted);">&rarr;</span>
+        <span class="skill-badge" id="step-indicator-2">2. Skills</span>
+        <span style="color: var(--color-text-muted);">&rarr;</span>
+        <span class="skill-badge" id="step-indicator-3">3. Availability</span>
+    </div>
+
+    <form id="onboarding-form" autocomplete="off">
+        <!-- ===== Section 1: Bio ===== -->
+        <div class="card" style="margin-bottom: var(--spacing-4);">
+            <div class="card-header">
+                <h2 style="margin: 0; font-size: var(--text-xl);">About You</h2>
+                <span class="count-badge">Step 1</span>
+            </div>
+            <div class="card-body">
+                <div class="form-group">
+                    <label for="display_name">Display Name</label>
+                    <input
+                        type="text"
+                        id="display_name"
+                        name="display_name"
+                        class="form-input"
+                        placeholder="How should teammates call you?"
+                        value="{{ display_name or '' }}"
+                        maxlength="50"
+                    >
+                    <span class="form-hint">This is how you'll appear across Grid.</span>
+                </div>
+                <div class="form-group">
+                    <label for="bio">Bio</label>
+                    <textarea
+                        id="bio"
+                        name="bio"
+                        class="form-textarea"
+                        placeholder="Tell potential teammates about yourself..."
+                        maxlength="500"
+                    >{{ bio or '' }}</textarea>
+                    <span class="form-hint">Share your interests, experience, and what you're looking for in a team.</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== Section 2: Skills ===== -->
+        <div class="card" style="margin-bottom: var(--spacing-4);">
+            <div class="card-header">
+                <h2 style="margin: 0; font-size: var(--text-xl);">Your Skills</h2>
+                <span class="count-badge">Step 2</span>
+            </div>
+            <div class="card-body">
+                <p style="color: var(--color-text-muted); font-size: var(--text-sm); margin-bottom: var(--spacing-2);">
+                    Add the languages, frameworks, and tools you know. This helps us find complementary teammates for you.
+                </p>
+                <div id="skill-picker"></div>
+            </div>
+        </div>
+
+        <!-- ===== Section 3: Availability ===== -->
+        <div class="card" style="margin-bottom: var(--spacing-4);">
+            <div class="card-header">
+                <h2 style="margin: 0; font-size: var(--text-xl);">Availability</h2>
+                <span class="count-badge">Step 3</span>
+            </div>
+            <div class="card-body">
+                <p style="color: var(--color-text-muted); font-size: var(--text-sm); margin-bottom: var(--spacing-2);">
+                    Click and drag to mark your available coding hours. This helps match you with teammates in compatible time zones.
+                </p>
+                <div id="availability-matrix"></div>
+                <div class="matrix-legend" style="margin-top: var(--spacing-2);">
+                    <div class="matrix-legend-item">
+                        <div class="matrix-legend-swatch swatch-available"></div>
+                        <span>Available</span>
+                    </div>
+                    <div class="matrix-legend-item">
+                        <div class="matrix-legend-swatch swatch-unavailable"></div>
+                        <span>Unavailable</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== Submit ===== -->
+        <div id="onboarding-error" class="form-error" style="text-align: center; margin-bottom: var(--spacing-2); display: none;"></div>
+        <button type="submit" class="btn btn-accent btn-lg btn-block" id="submit-btn">
+            Complete Setup
+        </button>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script type="module">
+    import { initMatrix, getMatrixData } from '/static/js/matrix.js';
+    import { initSkillPicker, getSelectedSkills } from '/static/js/skills.js';
+    import api from '/static/js/api.js';
+
+    document.addEventListener('DOMContentLoaded', () => {
+        initMatrix('#availability-matrix');
+        initSkillPicker('#skill-picker');
+    });
+
+    const form = document.getElementById('onboarding-form');
+    const submitBtn = document.getElementById('submit-btn');
+    const errorEl = document.getElementById('onboarding-error');
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        errorEl.style.display = 'none';
+        submitBtn.classList.add('loading');
+        submitBtn.disabled = true;
+
+        try {
+            const bio = document.getElementById('bio').value.trim();
+            const display_name = document.getElementById('display_name').value.trim();
+            const skills = getSelectedSkills();
+            const availability = getMatrixData();
+
+            await api.post('/api/users/me/onboard', {
+                bio,
+                display_name,
+                skills,
+                availability: { slots: availability }
+            });
+
+            window.location.href = '/dashboard';
+        } catch (err) {
+            errorEl.textContent = err.message || 'Something went wrong. Please try again.';
+            errorEl.style.display = 'block';
+            submitBtn.classList.remove('loading');
+            submitBtn.disabled = false;
+        }
+    });
+</script>
+{% endblock %}

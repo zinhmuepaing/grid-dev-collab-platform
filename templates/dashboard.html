@@ -1,0 +1,605 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Welcome Header -->
+    <div class="page-header">
+        <h1 id="welcome-heading">Welcome back!</h1>
+        <p>Here's what's happening with your teams and events.</p>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="grid" style="grid-template-columns: repeat(5, 1fr); margin-bottom: var(--spacing-4);" id="stats-grid">
+        <div class="card" style="text-align: center; padding: var(--spacing-4);">
+            <p style="font-size: var(--text-3xl); font-weight: var(--font-weight-bold); color: var(--color-primary); font-family: var(--font-mono); margin-bottom: 4px;" id="stat-events">0</p>
+            <p style="font-size: var(--text-sm); color: var(--color-text-muted);">Events Joined</p>
+        </div>
+        <div class="card" style="text-align: center; padding: var(--spacing-4);">
+            <p style="font-size: var(--text-3xl); font-weight: var(--font-weight-bold); color: var(--color-accent); font-family: var(--font-mono); margin-bottom: 4px;" id="stat-teams">0</p>
+            <p style="font-size: var(--text-sm); color: var(--color-text-muted);">Teams</p>
+        </div>
+        <div class="card" style="text-align: center; padding: var(--spacing-4);">
+            <p style="font-size: var(--text-3xl); font-weight: var(--font-weight-bold); color: var(--color-accent); font-family: var(--font-mono); margin-bottom: 4px;" id="stat-mutual">0</p>
+            <p style="font-size: var(--text-sm); color: var(--color-text-muted);">Mutual Matches</p>
+        </div>
+        <div class="card" style="text-align: center; padding: var(--spacing-4);">
+            <p style="font-size: var(--text-3xl); font-weight: var(--font-weight-bold); color: #f0883e; font-family: var(--font-mono); margin-bottom: 4px;" id="stat-received-likes">0</p>
+            <p style="font-size: var(--text-sm); color: var(--color-text-muted);">Pending Likes</p>
+        </div>
+        <div class="card" style="text-align: center; padding: var(--spacing-4);">
+            <p style="font-size: var(--text-3xl); font-weight: var(--font-weight-bold); color: var(--color-danger); font-family: var(--font-mono); margin-bottom: 4px;" id="stat-unread">0</p>
+            <p style="font-size: var(--text-sm); color: var(--color-text-muted);">Unread Messages</p>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="flex-row" style="gap: var(--spacing-2); margin-bottom: var(--spacing-4);">
+        <a href="/events" class="btn btn-primary">Browse Events</a>
+        <a href="/find" class="btn btn-outline">Find Teammates</a>
+    </div>
+
+    <!-- New Match Notification Banner (shown when new mutual matches detected) -->
+    <div id="match-notification" class="card" style="display: none; margin-bottom: var(--spacing-4); border: 1px solid var(--color-accent); background: rgba(63, 185, 80, 0.08);">
+        <div style="display: flex; align-items: center; gap: var(--spacing-2); padding: var(--spacing-3);">
+            <span style="font-size: 1.5rem;">&#9733;</span>
+            <div style="flex: 1;">
+                <strong id="match-notification-text" style="color: var(--color-accent);">You have new matches!</strong>
+                <p id="match-notification-detail" style="color: var(--color-text-muted); font-size: var(--text-sm); margin: 0;"></p>
+            </div>
+            <button class="btn btn-accent btn-sm" id="match-notification-action">View Matches</button>
+            <button class="btn btn-outline btn-sm" id="match-notification-dismiss" style="padding: 4px 8px;">&times;</button>
+        </div>
+    </div>
+
+    <!-- People Who Liked You -->
+    <section id="received-likes-section" style="margin-bottom: var(--spacing-4); display: none;">
+        <h2 style="margin-bottom: var(--spacing-2);">
+            People Who Liked You
+            <span id="received-likes-count" style="display: inline-block; background: #f0883e; color: #fff; font-size: 0.75rem; font-weight: bold; padding: 2px 8px; border-radius: 10px; vertical-align: middle; margin-left: 8px;"></span>
+        </h2>
+        <p style="color: var(--color-text-muted); font-size: var(--text-sm); margin-bottom: var(--spacing-2);">These people are interested in teaming up with you. Like them back to create a match!</p>
+        <div id="received-likes-list" class="grid grid-auto-fill"></div>
+    </section>
+
+    <!-- Mutual Matches -->
+    <section id="mutual-section" style="margin-bottom: var(--spacing-4); display: none;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--spacing-2);">
+            <h2 style="margin: 0;">Mutual Matches</h2>
+            <button class="btn btn-accent btn-sm" id="createTeamBtn" style="display: none;">+ Create Team</button>
+        </div>
+        <div id="mutual-list" class="grid grid-auto-fill"></div>
+    </section>
+
+    <!-- Pending Invites -->
+    <section id="invites-section" style="margin-bottom: var(--spacing-4); display: none;">
+        <h2 style="margin-bottom: var(--spacing-2);">Pending Invites</h2>
+        <div id="invites-list" class="grid grid-auto-fill"></div>
+    </section>
+
+    <!-- Two-column layout: Events + Teams -->
+    <div class="grid grid-2" style="align-items: start;">
+        <!-- Your Events -->
+        <section>
+            <h2 style="margin-bottom: var(--spacing-2);">Your Events</h2>
+            <div id="events-list">
+                <div class="card empty-state">
+                    <h3>No events yet</h3>
+                    <p>Browse upcoming hackathons and mark your interest to see them here.</p>
+                    <a href="/events" class="btn btn-primary btn-sm">Browse Events</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Your Teams -->
+        <section id="teams-section">
+            <h2 style="margin-bottom: var(--spacing-2);">Your Teams</h2>
+            <div id="teams-list">
+                <div class="card empty-state">
+                    <h3>No teams yet</h3>
+                    <p>Find teammates and form a team for your next hackathon.</p>
+                    <a href="/find" class="btn btn-primary btn-sm">Find Teammates</a>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script type="module">
+    import api from '/static/js/api.js';
+    import { fetchLikeStatuses, buildLikeButton } from '/static/js/likes.js';
+
+    async function loadDashboard() {
+        // Load all dashboard data in parallel, catching individual failures.
+        // The api wrapper throws on 401 (after triggering a login redirect),
+        // so Promise.allSettled properly settles every slot even when some
+        // endpoints require authentication.
+        const [meResult, eventsResult, teamsResult, unreadResult, invitesResult, mutualResult, receivedResult] = await Promise.allSettled([
+            api.get('/auth/me'),
+            api.get('/api/events?interested=mine&per_page=6'),
+            api.get('/api/teams/mine'),
+            api.get('/api/messages/unread-count'),
+            api.get('/api/teams/mine?invites=pending'),
+            api.get('/api/likes/mutual'),
+            api.get('/api/likes/received')
+        ]);
+
+        // Welcome message (best-effort)
+        if (meResult.status === 'fulfilled' && meResult.value && meResult.value.user) {
+            const me = meResult.value.user;
+            const name = me.display_name || me.github_handle || me.email || 'there';
+            document.getElementById('welcome-heading').textContent = `Welcome back, ${name}!`;
+        }
+
+        // -- Stats --
+        if (eventsResult.status === 'fulfilled' && eventsResult.value.events) {
+            const events = eventsResult.value.events;
+            document.getElementById('stat-events').textContent = eventsResult.value.total || events.length;
+            renderEvents(events);
+        }
+
+        if (teamsResult.status === 'fulfilled' && teamsResult.value.teams) {
+            const teams = teamsResult.value.teams;
+            document.getElementById('stat-teams').textContent = teams.length;
+            renderTeams(teams);
+        }
+
+        if (unreadResult.status === 'fulfilled') {
+            document.getElementById('stat-unread').textContent = unreadResult.value.count || 0;
+        }
+
+        // -- Mutual Matches --
+        if (mutualResult.status === 'fulfilled' && mutualResult.value.matches) {
+            const matches = mutualResult.value.matches;
+            document.getElementById('stat-mutual').textContent = matches.length;
+            renderMutualMatches(matches);
+            checkNewMatches(matches);
+        }
+
+        // -- Received Likes (people who liked you) --
+        if (receivedResult.status === 'fulfilled' && receivedResult.value.received) {
+            const received = receivedResult.value.received;
+            document.getElementById('stat-received-likes').textContent = received.length;
+            await renderReceivedLikes(received);
+        }
+
+        // -- Pending Invites --
+        if (invitesResult.status === 'fulfilled' && invitesResult.value.teams) {
+            renderInvites(invitesResult.value.teams);
+        }
+    }
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    function renderEvents(events) {
+        const container = document.getElementById('events-list');
+        if (!events || events.length === 0) return;
+
+        container.innerHTML = events.map(event => `
+            <a href="/events/${event.id}" class="card card-clickable event-card" style="margin-bottom: var(--spacing-2); text-decoration: none; display: flex; align-items: center; gap: calc(var(--spacing-unit) * 1.5); padding: calc(var(--spacing-unit) * 1.5);">
+                ${event.image_url ? `<img src="${escapeHtml(event.image_url)}" alt="" style="width: 56px; height: 56px; border-radius: var(--radius); object-fit: cover; flex-shrink: 0;">` : `<div style="width: 56px; height: 56px; border-radius: var(--radius); background: var(--color-border); flex-shrink: 0;"></div>`}
+                <div style="flex: 1; min-width: 0;">
+                    <div class="event-title" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${escapeHtml(event.title)}</div>
+                    <div class="event-meta" style="font-size: 0.85rem;">
+                        ${event.start_date ? `<span class="event-meta-item">${escapeHtml(event.start_date)}</span>` : ''}
+                        ${event.location ? `<span class="event-meta-item">${escapeHtml(event.location)}</span>` : ''}
+                    </div>
+                    <div class="event-footer" style="font-size: 0.8rem;">
+                        <span class="interested-count">${event.interested_count || 0} interested</span>
+                    </div>
+                </div>
+            </a>
+        `).join('');
+    }
+
+    function renderTeams(teams) {
+        const container = document.getElementById('teams-list');
+        if (!teams || teams.length === 0) return;
+
+        container.innerHTML = teams.map(team => `
+            <div class="card team-card" style="margin-bottom: var(--spacing-2); position: relative; cursor: pointer;" data-team-id="${team.id}">
+                <button class="team-delete-btn" data-team-id="${team.id}" data-team-name="${escapeHtml(team.name)}" title="Delete team"
+                    style="position: absolute; top: 8px; right: 8px; background: transparent; border: 1px solid var(--color-border); color: var(--color-text-muted); width: 28px; height: 28px; border-radius: var(--radius); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; line-height: 1; z-index: 2; transition: background 150ms, color 150ms, border-color 150ms;"
+                    onmouseover="this.style.background='var(--color-danger)';this.style.color='#fff';this.style.borderColor='var(--color-danger)'"
+                    onmouseout="this.style.background='transparent';this.style.color='var(--color-text-muted)';this.style.borderColor='var(--color-border)'"
+                >&times;</button>
+                <div class="team-name">${escapeHtml(team.name)}</div>
+                ${team.event ? `<div class="team-event">${escapeHtml(team.event.title || '')}</div>` : ''}
+                <div class="team-members-list" style="margin-top: 8px; display: flex; flex-direction: column; gap: 4px;">
+                    ${(team.members || []).map(m => {
+                        const mName = escapeHtml(m.display_name || m.github_handle || m.email || 'User');
+                        const mAvatar = escapeHtml(m.avatar_url || '/static/img/default-avatar.svg');
+                        const ownerTag = m.role === 'owner' ? ' <span style="color:var(--color-accent);font-size:0.7rem;">owner</span>' : '';
+                        return '<div style="display:flex;align-items:center;gap:6px;">'
+                            + '<img src="' + mAvatar + '" alt="" style="width:20px;height:20px;border-radius:50%;object-fit:cover;flex-shrink:0;">'
+                            + '<span style="font-size:0.8rem;color:var(--color-text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + mName + ownerTag + '</span>'
+                            + '</div>';
+                    }).join('')}
+                </div>
+            </div>
+        `).join('');
+
+        // Click on card navigates to team page (but not if delete button was clicked)
+        container.querySelectorAll('.team-card').forEach(card => {
+            card.addEventListener('click', (e) => {
+                if (e.target.closest('.team-delete-btn')) return;
+                window.location.href = `/team/${card.dataset.teamId}`;
+            });
+        });
+
+        // Delete button handlers
+        container.querySelectorAll('.team-delete-btn').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                const teamId = btn.dataset.teamId;
+                const teamName = btn.dataset.teamName;
+
+                if (!confirm(`Delete team "${teamName}"?`)) return;
+
+                btn.disabled = true;
+                try {
+                    await api.delete(`/api/teams/${teamId}`);
+                    const card = btn.closest('.team-card');
+                    card.remove();
+
+                    // If no teams left, show empty state
+                    if (container.querySelectorAll('.team-card').length === 0) {
+                        container.innerHTML = `
+                            <div class="card empty-state">
+                                <h3>No teams yet</h3>
+                                <p>Find teammates and form a team for your next hackathon.</p>
+                                <a href="/find" class="btn btn-primary btn-sm">Find Teammates</a>
+                            </div>`;
+                    }
+
+                    // Update stat counter
+                    const statEl = document.getElementById('stat-teams');
+                    const current = parseInt(statEl.textContent, 10);
+                    if (!isNaN(current) && current > 0) {
+                        statEl.textContent = current - 1;
+                    }
+                } catch (err) {
+                    btn.disabled = false;
+                    alert(err.message || 'Failed to delete team.');
+                }
+            });
+        });
+    }
+
+    let mutualMatchesData = [];
+
+    function renderMutualMatches(matches) {
+        const section = document.getElementById('mutual-section');
+        const container = document.getElementById('mutual-list');
+        if (!matches || matches.length === 0) return;
+
+        mutualMatchesData = matches;
+        section.style.display = 'block';
+        document.getElementById('createTeamBtn').style.display = 'inline-flex';
+
+        container.innerHTML = matches.map(user => `
+            <div class="card user-card" style="padding: var(--spacing-3); position: relative;">
+                <label style="position: absolute; top: 10px; right: 10px; cursor: pointer;">
+                    <input type="checkbox" class="match-select" value="${user.id}" style="width: 18px; height: 18px; accent-color: var(--color-accent); cursor: pointer;">
+                </label>
+                <img class="user-avatar" src="${escapeHtml(user.avatar_url || '/static/img/default-avatar.svg')}" alt="${escapeHtml(user.display_name || '')}" loading="lazy">
+                <span class="user-name">${escapeHtml(user.display_name || user.github_handle || user.email || 'User')}</span>
+                ${user.github_handle ? `<span class="user-handle">@${escapeHtml(user.github_handle)}</span>` : ''}
+                <div style="margin-top: var(--spacing-2); width: 100%; display: flex; gap: 8px;">
+                    <a href="/inbox?user=${user.id}" class="btn btn-primary btn-sm" style="flex:1;">Message</a>
+                    <a href="/profile/${user.id}" class="btn btn-outline btn-sm" style="flex:1;">Profile</a>
+                </div>
+            </div>
+        `).join('');
+
+        // Create Team button handler
+        document.getElementById('createTeamBtn').addEventListener('click', openCreateTeamModal);
+    }
+
+    function openCreateTeamModal() {
+        // Gather selected users
+        const checked = document.querySelectorAll('.match-select:checked');
+        const selectedIds = new Set([...checked].map(cb => Number(cb.value)));
+
+        // Remove any existing modal
+        const existing = document.getElementById('createTeamModal');
+        if (existing) existing.remove();
+
+        const overlay = document.createElement('div');
+        overlay.id = 'createTeamModal';
+        overlay.className = 'modal-overlay';
+
+        // Build member list with checkboxes (pre-checked if already selected)
+        const memberListHtml = mutualMatchesData.map(user => {
+            const name = escapeHtml(user.display_name || user.github_handle || user.email || 'User');
+            const avatar = escapeHtml(user.avatar_url || '/static/img/default-avatar.svg');
+            const isChecked = selectedIds.has(user.id) ? 'checked' : '';
+            return `
+                <label style="display: flex; align-items: center; gap: var(--spacing-2); padding: 8px; border-radius: var(--radius); cursor: pointer; transition: background 150ms;"
+                       onmouseover="this.style.background='var(--color-surface-hover)'" onmouseout="this.style.background='transparent'">
+                    <input type="checkbox" class="team-member-cb" value="${user.id}" ${isChecked}
+                           style="width: 18px; height: 18px; accent-color: var(--color-accent); cursor: pointer; flex-shrink: 0;">
+                    <img src="${avatar}" alt="" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover; flex-shrink: 0;">
+                    <span style="color: var(--color-text);">${name}</span>
+                </label>`;
+        }).join('');
+
+        overlay.innerHTML = `
+            <div class="modal-content" style="max-width: 480px;">
+                <div class="modal-header">
+                    <h3>Create Team</h3>
+                    <button class="modal-close" id="teamModalClose">&times;</button>
+                </div>
+                <div class="modal-body" style="padding: var(--spacing-3);">
+                    <div style="margin-bottom: var(--spacing-3);">
+                        <label style="display: block; font-size: var(--text-sm); color: var(--color-text-muted); margin-bottom: 6px;">Team Name</label>
+                        <input type="text" id="teamNameInput" class="form-input" placeholder="e.g. Team Alpha" style="width: 100%;" autofocus>
+                    </div>
+                    <div>
+                        <label style="display: block; font-size: var(--text-sm); color: var(--color-text-muted); margin-bottom: 6px;">Select Members to Invite</label>
+                        <div id="teamMembersList" style="max-height: 240px; overflow-y: auto; border: 1px solid var(--color-border); border-radius: var(--radius); padding: 4px;">
+                            ${memberListHtml}
+                        </div>
+                        <p style="font-size: var(--text-xs); color: var(--color-text-muted); margin-top: 6px;">You will be added as the team owner automatically.</p>
+                    </div>
+                    <div id="teamCreateError" style="display: none; margin-top: var(--spacing-2); padding: 8px; background: var(--color-danger-muted); color: var(--color-danger); border-radius: var(--radius); font-size: var(--text-sm);"></div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-outline" id="teamModalCancel">Cancel</button>
+                    <button class="btn btn-accent" id="teamModalCreate">Create Team</button>
+                </div>
+            </div>`;
+
+        document.body.appendChild(overlay);
+        requestAnimationFrame(() => overlay.classList.add('open'));
+
+        // Focus the name input
+        const nameInput = overlay.querySelector('#teamNameInput');
+        setTimeout(() => nameInput.focus(), 100);
+
+        // Close handlers
+        function closeModal() {
+            overlay.classList.remove('open');
+            overlay.addEventListener('transitionend', () => overlay.remove(), { once: true });
+            document.removeEventListener('keydown', onEscape);
+        }
+        function onEscape(e) { if (e.key === 'Escape') closeModal(); }
+
+        overlay.querySelector('#teamModalClose').addEventListener('click', closeModal);
+        overlay.querySelector('#teamModalCancel').addEventListener('click', closeModal);
+        overlay.addEventListener('click', (e) => { if (e.target === overlay) closeModal(); });
+        document.addEventListener('keydown', onEscape);
+
+        // Create handler
+        overlay.querySelector('#teamModalCreate').addEventListener('click', async function () {
+            const createBtn = this;
+            const errorEl = overlay.querySelector('#teamCreateError');
+            errorEl.style.display = 'none';
+
+            const teamName = nameInput.value.trim();
+            if (!teamName) {
+                errorEl.textContent = 'Please enter a team name.';
+                errorEl.style.display = 'block';
+                nameInput.focus();
+                return;
+            }
+
+            const memberCbs = overlay.querySelectorAll('.team-member-cb:checked');
+            if (memberCbs.length === 0) {
+                errorEl.textContent = 'Please select at least one member to invite.';
+                errorEl.style.display = 'block';
+                return;
+            }
+
+            createBtn.disabled = true;
+            createBtn.classList.add('loading');
+
+            try {
+                // Step 1: Create the team
+                const teamResult = await api.post('/api/teams/', { name: teamName });
+                const teamId = teamResult.team.id;
+
+                // Step 2: Invite each selected member
+                const invitePromises = [...memberCbs].map(cb =>
+                    api.post(`/api/teams/${teamId}/invite`, { user_id: Number(cb.value) })
+                        .catch(err => ({ error: err.message, user_id: cb.value }))
+                );
+                await Promise.all(invitePromises);
+
+                closeModal();
+                // Redirect to team page
+                window.location.href = `/team/${teamId}`;
+            } catch (err) {
+                createBtn.disabled = false;
+                createBtn.classList.remove('loading');
+                errorEl.textContent = err.message || 'Failed to create team. Please try again.';
+                errorEl.style.display = 'block';
+            }
+        });
+
+        // Enter key on name input triggers create
+        nameInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                overlay.querySelector('#teamModalCreate').click();
+            }
+        });
+    }
+
+    async function renderReceivedLikes(received) {
+        const section = document.getElementById('received-likes-section');
+        const container = document.getElementById('received-likes-list');
+        const countBadge = document.getElementById('received-likes-count');
+        if (!received || received.length === 0) return;
+
+        section.style.display = 'block';
+        countBadge.textContent = received.length;
+        countBadge.setAttribute('data-count', String(received.length));
+
+        // Pre-fetch like statuses before building cards
+        const userIds = received.map(u => u.id);
+        const statuses = await fetchLikeStatuses(userIds);
+
+        // Build each card with DOM manipulation (ensures event listeners work)
+        container.innerHTML = '';
+        for (const user of received) {
+            const displayName = user.display_name || user.github_handle || user.email || 'User';
+            const avatarUrl = user.avatar_url || '/static/img/default-avatar.svg';
+
+            const card = document.createElement('div');
+            card.className = 'card user-card';
+            card.style.padding = 'var(--spacing-3)';
+
+            const avatar = document.createElement('img');
+            avatar.className = 'user-avatar';
+            avatar.src = avatarUrl;
+            avatar.alt = displayName;
+            avatar.loading = 'lazy';
+            card.appendChild(avatar);
+
+            const nameEl = document.createElement('span');
+            nameEl.className = 'user-name';
+            nameEl.textContent = displayName;
+            card.appendChild(nameEl);
+
+            if (user.github_handle) {
+                const handleEl = document.createElement('span');
+                handleEl.className = 'user-handle';
+                handleEl.textContent = '@' + user.github_handle;
+                card.appendChild(handleEl);
+            }
+
+            // Action buttons row
+            const actions = document.createElement('div');
+            actions.style.cssText = 'margin-top: var(--spacing-2); width: 100%; display: flex; gap: 8px;';
+
+            // Like Back button (built directly, not via slot replacement)
+            const status = statuses.get(user.id) || { i_liked: false, they_liked: true, mutual: false };
+            status.they_liked = true;
+            const likeBtn = buildLikeButton(user.id, status, null, {
+                displayName: displayName,
+                avatarUrl: avatarUrl
+            });
+            likeBtn.style.flex = '1';
+            actions.appendChild(likeBtn);
+
+            const msgLink = document.createElement('a');
+            msgLink.href = '/inbox?user=' + user.id;
+            msgLink.className = 'btn btn-outline btn-sm';
+            msgLink.style.flex = '1';
+            msgLink.textContent = 'Message';
+            actions.appendChild(msgLink);
+
+            const profileLink = document.createElement('a');
+            profileLink.href = '/profile/' + user.id;
+            profileLink.className = 'btn btn-outline btn-sm';
+            profileLink.style.flex = '1';
+            profileLink.textContent = 'Profile';
+            actions.appendChild(profileLink);
+
+            card.appendChild(actions);
+            container.appendChild(card);
+        }
+    }
+
+    function checkNewMatches(matches) {
+        if (!matches || matches.length === 0) return;
+
+        // Check localStorage for previously seen match count
+        const seenKey = 'grid_seen_match_count';
+        const prevCount = parseInt(localStorage.getItem(seenKey) || '0', 10);
+        const currentCount = matches.length;
+
+        if (currentCount > prevCount) {
+            const newCount = currentCount - prevCount;
+            const notification = document.getElementById('match-notification');
+            const text = document.getElementById('match-notification-text');
+            const detail = document.getElementById('match-notification-detail');
+
+            // Show the newest match names
+            const newMatches = matches.slice(0, newCount);
+            const names = newMatches.map(m => m.display_name || m.github_handle || 'Someone');
+
+            if (newCount === 1) {
+                text.textContent = `You matched with ${names[0]}!`;
+                detail.textContent = 'You both liked each other. Start a conversation!';
+            } else {
+                text.textContent = `You have ${newCount} new matches!`;
+                detail.textContent = `Including ${names.slice(0, 3).join(', ')}${newCount > 3 ? ' and more' : ''}`;
+            }
+
+            notification.style.display = 'block';
+
+            document.getElementById('match-notification-action').addEventListener('click', () => {
+                document.getElementById('mutual-section').scrollIntoView({ behavior: 'smooth' });
+                localStorage.setItem(seenKey, String(currentCount));
+                notification.style.display = 'none';
+            });
+
+            document.getElementById('match-notification-dismiss').addEventListener('click', () => {
+                localStorage.setItem(seenKey, String(currentCount));
+                notification.style.display = 'none';
+            });
+        }
+
+        // Only update stored count when notification is dismissed (handled by click handlers above)
+    }
+
+    function renderInvites(teams) {
+        const section = document.getElementById('invites-section');
+        const container = document.getElementById('invites-list');
+
+        // Filter to only pending invites
+        const pending = (teams || []).filter(t => t.invite_status === 'pending');
+        if (pending.length === 0) return;
+
+        section.style.display = 'block';
+        container.innerHTML = pending.map(team => `
+            <div class="card" style="padding: var(--spacing-3);">
+                <div class="card-header">
+                    <div>
+                        <div class="team-name">${escapeHtml(team.name)}</div>
+                        ${team.event ? `<div class="team-event">${escapeHtml(team.event.title || '')}</div>` : ''}
+                    </div>
+                    <span class="status-badge status-pending">Pending</span>
+                </div>
+                <div class="card-footer">
+                    <div class="btn-group">
+                        <button class="btn btn-accent btn-sm invite-respond" data-team="${team.id}" data-action="accepted">Accept</button>
+                        <button class="btn btn-danger btn-sm invite-respond" data-team="${team.id}" data-action="declined">Decline</button>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+
+        // Attach invite response handlers
+        container.querySelectorAll('.invite-respond').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const teamId = btn.dataset.team;
+                const action = btn.dataset.action;
+                btn.classList.add('loading');
+                btn.disabled = true;
+
+                try {
+                    await api.post(`/api/teams/${teamId}/respond`, { action });
+                    // Reload to reflect changes
+                    window.location.reload();
+                } catch (err) {
+                    btn.classList.remove('loading');
+                    btn.disabled = false;
+                    alert(err.message || 'Failed to respond to invite.');
+                }
+            });
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', loadDashboard);
+</script>
+{% endblock %}

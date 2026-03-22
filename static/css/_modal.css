@@ -1,0 +1,180 @@
+/* ===========================================
+   Grid — Modal
+   Overlay, centered content, transitions
+   =========================================== */
+
+/* ---- Overlay Backdrop ---- */
+
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background-color: var(--color-overlay);
+    z-index: var(--z-modal-backdrop);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-3);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity var(--transition-base), visibility var(--transition-base);
+}
+
+.modal-overlay.open {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* ---- Modal Content Card ---- */
+
+.modal-content {
+    width: 100%;
+    max-width: 520px;
+    max-height: calc(100vh - var(--spacing-8));
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-xl);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    z-index: var(--z-modal);
+    transform: scale(0.95) translateY(8px);
+    transition: transform var(--transition-base);
+}
+
+.modal-overlay.open .modal-content {
+    transform: scale(1) translateY(0);
+}
+
+/* ---- Modal Header ---- */
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--spacing-2) var(--spacing-3);
+    border-bottom: 1px solid var(--color-border);
+    flex-shrink: 0;
+}
+
+.modal-header h3 {
+    font-size: var(--text-lg);
+    font-weight: var(--font-weight-semibold);
+    margin-bottom: 0;
+    color: #e6edf3;
+}
+
+.modal-close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    font-size: var(--text-xl);
+    color: var(--color-text-muted);
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: background-color var(--transition-fast), color var(--transition-fast);
+    line-height: 1;
+}
+
+.modal-close:hover {
+    background-color: var(--color-surface-hover);
+    color: #e6edf3;
+}
+
+/* ---- Modal Body ---- */
+
+.modal-body {
+    padding: var(--spacing-3);
+    overflow-y: auto;
+    flex: 1;
+}
+
+.modal-body p {
+    color: var(--color-text);
+    font-size: var(--text-sm);
+    line-height: var(--leading-relaxed);
+}
+
+/* ---- Modal Footer ---- */
+
+.modal-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--spacing-1);
+    padding: var(--spacing-2) var(--spacing-3);
+    border-top: 1px solid var(--color-border);
+    flex-shrink: 0;
+}
+
+/* ---- Modal Sizes ---- */
+
+.modal-content.modal-sm {
+    max-width: 400px;
+}
+
+.modal-content.modal-lg {
+    max-width: 680px;
+}
+
+/* ---- Confirmation Modal ---- */
+
+.modal-confirm .modal-body {
+    text-align: center;
+    padding: var(--spacing-4) var(--spacing-3);
+}
+
+.modal-confirm .modal-icon {
+    width: 48px;
+    height: 48px;
+    margin: 0 auto var(--spacing-2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-size: var(--text-2xl);
+}
+
+.modal-confirm .modal-icon.icon-danger {
+    background-color: var(--color-danger-muted);
+    color: var(--color-danger);
+}
+
+.modal-confirm .modal-icon.icon-warning {
+    background-color: rgba(210, 153, 34, 0.15);
+    color: #d29922;
+}
+
+.modal-confirm .modal-icon.icon-success {
+    background-color: var(--color-accent-muted);
+    color: var(--color-accent);
+}
+
+.modal-confirm .modal-footer {
+    justify-content: center;
+}
+
+/* ---- Responsive ---- */
+
+@media (max-width: 480px) {
+    .modal-overlay {
+        padding: var(--spacing-2);
+        align-items: flex-end;
+    }
+
+    .modal-content {
+        max-width: 100%;
+        border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+        max-height: 90vh;
+    }
+
+    .modal-overlay.open .modal-content {
+        transform: scale(1) translateY(0);
+    }
+
+    .modal-content {
+        transform: scale(1) translateY(100%);
+    }
+}

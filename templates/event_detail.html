@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block title %}Event Details{% endblock %}
+
+{% block content %}
+<div class="container container-narrow">
+    <!-- Loading State -->
+    <div id="eventLoading" class="flex-center p-4">
+        <span class="text-muted">Loading event details...</span>
+    </div>
+
+    <!-- Event Detail Content (populated by JS) -->
+    <div id="eventDetail" class="hidden">
+        <!-- Event Header -->
+        <div class="page-header">
+            <h1 id="eventTitle"></h1>
+            <div class="flex-row gap-2 mt-2">
+                <span id="eventLocation" class="text-muted text-sm"></span>
+            </div>
+        </div>
+
+        <!-- Event Dates -->
+        <div class="card mb-3">
+            <div class="card-body">
+                <div class="grid grid-3" id="eventDates">
+                    <div>
+                        <span class="text-xs text-muted" style="text-transform:uppercase;letter-spacing:0.05em;">Start Date</span>
+                        <p id="eventStartDate" class="text-white font-medium mt-1"></p>
+                    </div>
+                    <div>
+                        <span class="text-xs text-muted" style="text-transform:uppercase;letter-spacing:0.05em;">End Date</span>
+                        <p id="eventEndDate" class="text-white font-medium mt-1"></p>
+                    </div>
+                    <div>
+                        <span class="text-xs text-muted" style="text-transform:uppercase;letter-spacing:0.05em;">Registration Deadline</span>
+                        <p id="eventDeadline" class="text-white font-medium mt-1"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tags -->
+        <div id="eventTags" class="flex-row flex-wrap gap-1 mb-3">
+            <!-- Tag badges rendered by JS -->
+        </div>
+
+        <!-- Description -->
+        <div class="card mb-3">
+            <div class="card-body">
+                <p id="eventDescription" class="text-sm" style="line-height:var(--leading-relaxed);white-space:pre-line;"></p>
+            </div>
+        </div>
+
+        <!-- Source Link -->
+        <div id="eventSourceWrap" class="mb-3 hidden">
+            <a id="eventSource" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-outline btn-sm">
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
+                    <path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"/>
+                </svg>
+                View Original
+            </a>
+        </div>
+
+        <!-- Interest Toggle -->
+        <div class="flex-row gap-2 mb-4">
+            <button id="interestBtn" class="btn btn-outline">
+                <svg id="interestIcon" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                    <path d="m8 14.25.345.666a.75.75 0 0 1-.69 0l-.008-.004-.018-.01a7.152 7.152 0 0 1-.31-.17 22.055 22.055 0 0 1-3.434-2.414C2.045 10.731 0 8.35 0 5.5 0 2.836 2.086 1 4.25 1 5.797 1 7.153 1.802 8 3.02 8.847 1.802 10.203 1 11.75 1 13.914 1 16 2.836 16 5.5c0 2.85-2.045 5.231-3.885 6.818a22.066 22.066 0 0 1-3.744 2.584l-.018.01-.006.003h-.002ZM4.25 2.5c-1.336 0-2.75 1.164-2.75 3 0 2.15 1.58 4.144 3.365 5.682A20.58 20.58 0 0 0 8 13.393a20.58 20.58 0 0 0 3.135-2.211C12.92 9.644 14.5 7.65 14.5 5.5c0-1.836-1.414-3-2.75-3-1.373 0-2.609.986-3.029 2.456a.749.749 0 0 1-1.442 0C6.859 3.486 5.623 2.5 4.25 2.5Z"/>
+                </svg>
+                <span id="interestText">I'm Interested</span>
+            </button>
+            <span id="interestCount" class="text-muted text-sm flex-row items-center"></span>
+        </div>
+
+        <!-- Interested Users Section -->
+        <div class="section">
+            <div class="flex-between mb-3">
+                <h2>Interested Users</h2>
+                <button id="findMatchesBtn" class="btn btn-primary btn-sm">
+                    <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
+                        <path d="M8 16A8 8 0 1 1 8 0a8 8 0 0 1 0 16Zm3.78-9.72a.751.751 0 0 0-.018-1.042.751.751 0 0 0-1.042-.018L6.75 9.19 5.28 7.72a.751.751 0 0 0-1.042.018.751.751 0 0 0-.018 1.042l2 2a.75.75 0 0 0 1.06 0Z"/>
+                    </svg>
+                    Find Best Matches
+                </button>
+            </div>
+
+            <!-- Interested Users Grid -->
+            <div id="interestedGrid" class="grid grid-auto-fill">
+                <!-- User cards rendered by JS -->
+            </div>
+
+            <!-- Empty State for Interested Users -->
+            <div id="interestedEmpty" class="empty-state hidden">
+                <h3>No interested users yet</h3>
+                <p>Be the first to show interest in this hackathon!</p>
+            </div>
+
+            <!-- Loading for matches -->
+            <div id="matchesLoading" class="flex-center p-4 hidden">
+                <span class="text-muted">Calculating match scores...</span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    window.__eventId = {{ event_id | tojson }};
+</script>
+<script type="module">
+    import { initEventDetail } from "{{ url_for('static', filename='js/events.js') }}";
+    initEventDetail(window.__eventId);
+</script>
+{% endblock %}

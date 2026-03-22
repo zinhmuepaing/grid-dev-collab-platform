@@ -1,0 +1,206 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Profile{% endblock %}
+
+{% block content %}
+<div class="container container-narrow">
+    <div class="page-header">
+        <div class="flex-between">
+            <div>
+                <h1>Edit Profile</h1>
+                <p>Update your profile information</p>
+            </div>
+            <a href="/profile/{{ session.get('user_id', '') }}" class="btn btn-outline">Cancel</a>
+        </div>
+    </div>
+
+    <form id="edit-profile-form" autocomplete="off">
+        <!-- ===== Bio Section ===== -->
+        <div class="card" style="margin-bottom: var(--spacing-4);">
+            <div class="card-header">
+                <h2 style="margin: 0; font-size: var(--text-xl);">About You</h2>
+            </div>
+            <div class="card-body">
+                <div class="form-group">
+                    <label for="display_name">Display Name</label>
+                    <input
+                        type="text"
+                        id="display_name"
+                        name="display_name"
+                        class="form-input"
+                        placeholder="How should teammates call you?"
+                        maxlength="50"
+                    >
+                </div>
+                <div class="form-group">
+                    <label for="bio">Bio</label>
+                    <textarea
+                        id="bio"
+                        name="bio"
+                        class="form-textarea"
+                        placeholder="Tell potential teammates about yourself..."
+                        maxlength="500"
+                    ></textarea>
+                    <span class="form-hint">Share your interests, experience, and what you're looking for in a team.</span>
+                </div>
+                <div class="form-group">
+                    <label for="timezone">Timezone</label>
+                    <select id="timezone" name="timezone" class="form-select">
+                        <option value="UTC">UTC</option>
+                        <option value="America/New_York">Eastern Time (US)</option>
+                        <option value="America/Chicago">Central Time (US)</option>
+                        <option value="America/Denver">Mountain Time (US)</option>
+                        <option value="America/Los_Angeles">Pacific Time (US)</option>
+                        <option value="Europe/London">London (GMT)</option>
+                        <option value="Europe/Berlin">Central Europe</option>
+                        <option value="Asia/Kolkata">India (IST)</option>
+                        <option value="Asia/Shanghai">China (CST)</option>
+                        <option value="Asia/Tokyo">Japan (JST)</option>
+                        <option value="Australia/Sydney">Sydney (AEST)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== Skills Section ===== -->
+        <div class="card" style="margin-bottom: var(--spacing-4);">
+            <div class="card-header">
+                <h2 style="margin: 0; font-size: var(--text-xl);">Your Skills</h2>
+            </div>
+            <div class="card-body">
+                <p style="color: var(--color-text-muted); font-size: var(--text-sm); margin-bottom: var(--spacing-2);">
+                    Add the languages, frameworks, and tools you know.
+                </p>
+                <div id="skill-picker"></div>
+            </div>
+        </div>
+
+        <!-- ===== Availability Section ===== -->
+        <div class="card" style="margin-bottom: var(--spacing-4);">
+            <div class="card-header">
+                <h2 style="margin: 0; font-size: var(--text-xl);">Availability</h2>
+            </div>
+            <div class="card-body">
+                <p style="color: var(--color-text-muted); font-size: var(--text-sm); margin-bottom: var(--spacing-2);">
+                    Click and drag to mark your available coding hours.
+                </p>
+                <div id="availability-matrix"></div>
+                <div class="matrix-legend" style="margin-top: var(--spacing-2);">
+                    <div class="matrix-legend-item">
+                        <div class="matrix-legend-swatch swatch-available"></div>
+                        <span>Available</span>
+                    </div>
+                    <div class="matrix-legend-item">
+                        <div class="matrix-legend-swatch swatch-unavailable"></div>
+                        <span>Unavailable</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== Submit ===== -->
+        <div id="edit-feedback" style="text-align: center; margin-bottom: var(--spacing-2); display: none;"></div>
+        <div class="flex-row" style="gap: var(--spacing-2);">
+            <a href="/profile/{{ session.get('user_id', '') }}" class="btn btn-lg" style="flex: 1;">Cancel</a>
+            <button type="submit" class="btn btn-accent btn-lg" id="save-btn" style="flex: 2;">
+                Save Changes
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script type="module">
+    import { initMatrix, getMatrixData } from '/static/js/matrix.js';
+    import { initSkillPicker, getSelectedSkills } from '/static/js/skills.js';
+    import api from '/static/js/api.js';
+
+    let currentUserId = null;
+
+    async function loadCurrentProfile() {
+        try {
+            // Get current user info
+            const meData = await api.get('/auth/me');
+            const me = meData.user;
+            currentUserId = me.id;
+
+            // Get full profile data
+            const profileData = await api.get(`/api/users/${me.id}`);
+            const user = profileData.user;
+
+            // Populate bio fields
+            document.getElementById('display_name').value = user.display_name || '';
+            document.getElementById('bio').value = user.bio || '';
+
+            // Set timezone
+            const tzSelect = document.getElementById('timezone');
+            if (user.timezone) {
+                for (const opt of tzSelect.options) {
+                    if (opt.value === user.timezone) {
+                        opt.selected = true;
+                        break;
+                    }
+                }
+            }
+
+            // Initialize skill picker with existing skills
+            initSkillPicker('#skill-picker', profileData.skills || []);
+
+            // Initialize matrix with existing availability
+            initMatrix('#availability-matrix', profileData.availability || []);
+
+        } catch (err) {
+            showFeedback('Failed to load profile data. Please refresh the page.', true);
+        }
+    }
+
+    function showFeedback(message, isError = false) {
+        const el = document.getElementById('edit-feedback');
+        el.textContent = message;
+        el.style.display = 'block';
+        el.style.color = isError ? 'var(--color-danger)' : 'var(--color-accent)';
+        el.style.fontSize = 'var(--text-sm)';
+        el.style.fontWeight = 'var(--font-weight-medium)';
+
+        if (!isError) {
+            setTimeout(() => { el.style.display = 'none'; }, 3000);
+        }
+    }
+
+    const form = document.getElementById('edit-profile-form');
+    const saveBtn = document.getElementById('save-btn');
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const feedbackEl = document.getElementById('edit-feedback');
+        feedbackEl.style.display = 'none';
+        saveBtn.classList.add('loading');
+        saveBtn.disabled = true;
+
+        try {
+            const bio = document.getElementById('bio').value.trim();
+            const display_name = document.getElementById('display_name').value.trim();
+            const timezone = document.getElementById('timezone').value;
+            const skills = getSelectedSkills();
+            const availability = getMatrixData();
+
+            // Send all three updates in parallel
+            await Promise.all([
+                api.put('/api/users/me', { bio, display_name, timezone }),
+                api.put('/api/users/me/skills', { skills }),
+                api.put('/api/users/me/availability', { slots: availability })
+            ]);
+
+            showFeedback('Profile updated successfully!', false);
+        } catch (err) {
+            showFeedback(err.message || 'Failed to save changes. Please try again.', true);
+        } finally {
+            saveBtn.classList.remove('loading');
+            saveBtn.disabled = false;
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', loadCurrentProfile);
+</script>
+{% endblock %}

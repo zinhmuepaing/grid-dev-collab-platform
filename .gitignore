@@ -1,0 +1,52 @@
+# Environment
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Virtual environment
+venv/
+.venv/
+env/
+ENV/
+
+# Flask instance folder
+instance/
+
+# SQLite databases
+*.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# SQLite WAL temp files
+*.db-wal
+*.db-shm
+
+# Claude project blueprint (internal reference only)
+CLAUDE.md
+
+# Duplicate logo in root (original is in static/img/)
+/gridLogo.png
+
+# One-time migration/seed scripts (already applied)
+migrate_*.py
+seed_events.py
+hackathonList.txt
+
+# Distribution
+dist/
+build/
+*.egg-info/
+*.egg

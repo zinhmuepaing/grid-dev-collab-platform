@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block title %}Browse Hackathons{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <h1>Browse Hackathons</h1>
+        <p>Discover upcoming hackathons and find your next project</p>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="search-input-wrapper mb-4">
+        <span class="search-icon">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                <path d="M11.5 7a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0Zm-.82 4.74a6 6 0 1 1 1.06-1.06l3.04 3.04a.75.75 0 1 1-1.06 1.06l-3.04-3.04Z"/>
+            </svg>
+        </span>
+        <input
+            type="text"
+            id="eventSearch"
+            class="form-input"
+            placeholder="Search hackathons by name, topic, or location..."
+            autocomplete="off"
+        >
+    </div>
+
+    <!-- Event Cards Grid -->
+    <div id="eventsGrid" class="grid grid-auto-fill">
+        <!-- Cards rendered by JS -->
+    </div>
+
+    <!-- Empty State -->
+    <div id="eventsEmpty" class="empty-state hidden">
+        <h3>No hackathons found</h3>
+        <p>Try adjusting your search terms or check back later for new events.</p>
+    </div>
+
+    <!-- Loading State -->
+    <div id="eventsLoading" class="flex-center p-4 hidden">
+        <span class="text-muted">Loading events...</span>
+    </div>
+
+    <!-- Pagination -->
+    <div id="eventsPagination" class="flex-between mt-4 hidden">
+        <button id="prevPage" class="btn btn-outline" disabled>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                <path fill-rule="evenodd" d="M7.78 12.53a.75.75 0 0 1-1.06 0L2.47 8.28a.75.75 0 0 1 0-1.06l4.25-4.25a.75.75 0 0 1 1.06 1.06L4.81 7h7.44a.75.75 0 0 1 0 1.5H4.81l2.97 2.97a.75.75 0 0 1 0 1.06Z"/>
+            </svg>
+            Previous
+        </button>
+        <span id="pageInfo" class="text-muted text-sm"></span>
+        <button id="nextPage" class="btn btn-outline">
+            Next
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                <path fill-rule="evenodd" d="M8.22 3.47a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.75.75 0 0 1-1.06-1.06L11.19 9H3.75a.75.75 0 0 1 0-1.5h7.44L8.22 4.53a.75.75 0 0 1 0-1.06Z"/>
+            </svg>
+        </button>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script type="module">
+    import { initEvents } from "{{ url_for('static', filename='js/events.js') }}";
+    initEvents();
+</script>
+{% endblock %}

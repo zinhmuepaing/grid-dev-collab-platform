@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Grid{% endblock %} &mdash; Grid</title>
+    <meta name="csrf-token" content="{{ csrf_token() if csrf_token is defined else '' }}">
+    <meta name="description"
+        content="Find your perfect hackathon team with smart skill matching and availability overlap.">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    {% block head %}{% endblock %}
+</head>
+
+<body>
+    <!-- ===== Navbar ===== -->
+    <nav class="navbar" role="navigation" aria-label="Main navigation">
+        <div class="navbar-inner">
+            <!-- Logo -->
+            <a href="/" class="navbar-brand">
+                <img src="{{ url_for('static', filename='img/gridLogo.png') }}" alt="Grid logo" width="28" height="28">
+                Grid
+            </a>
+
+            <!-- Hamburger (mobile) -->
+            <button class="navbar-hamburger" id="navHamburger" aria-label="Toggle navigation" aria-expanded="false">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+
+            <!-- Nav Links (center) -->
+            <div class="navbar-nav" id="navLinks">
+                {% if session.get('user_id') %}
+                <a href="/dashboard" class="nav-link {% if request.path == '/dashboard' %}active{% endif %}">
+                    Dashboard
+                </a>
+                <a href="/events" class="nav-link {% if request.path.startswith('/events') %}active{% endif %}">
+                    Events
+                </a>
+                <a href="/find" class="nav-link {% if request.path == '/find' %}active{% endif %}">
+                    Find Teammates
+                </a>
+                <a href="/inbox" class="nav-link {% if request.path == '/inbox' %}active{% endif %}">
+                    Inbox
+                    <span class="unread-count" id="navUnreadBadge" data-count="0"></span>
+                </a>
+                <a href="/dashboard#teams-section"
+                    class="nav-link {% if request.path.startswith('/team') %}active{% endif %}">
+                    Teams
+                </a>
+                {% endif %}
+            </div>
+
+            <!-- User Section (right) -->
+            <div class="navbar-user">
+                {% if session.get('user_id') %}
+                <div class="user-dropdown" id="userDropdown">
+                    <button class="user-dropdown-toggle" aria-haspopup="true" aria-expanded="false">
+                        <img src="{{ session.get('avatar_url', url_for('static', filename='img/default-avatar.svg')) }}"
+                            alt="Your avatar" class="navbar-avatar">
+                        <span class="caret"></span>
+                    </button>
+                    <div class="user-dropdown-menu" role="menu">
+                        <a href="/profile/{{ session.get('user_id') }}" role="menuitem">Profile</a>
+                        <a href="/profile/edit" role="menuitem">Edit Profile</a>
+                        <div class="user-dropdown-divider"></div>
+                        <button class="dropdown-danger" role="menuitem" id="logoutBtn">Logout</button>
+                    </div>
+                </div>
+                {% else %}
+                <a href="/auth/github/login" class="btn btn-sm btn-primary">Login with GitHub</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <!-- ===== Main Content ===== -->
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- ===== Footer ===== -->
+    <footer class="site-footer">
+        <div class="container">
+            <p>&copy; 2026 Grid &mdash; Built for Builders</p>
+        </div>
+    </footer>
+
+    <!-- ===== Scripts ===== -->
+    <script>
+        // Mobile hamburger toggle
+        (function () {
+            const hamburger = document.getElementById('navHamburger');
+            const navLinks = document.getElementById('navLinks');
+            if (hamburger && navLinks) {
+                hamburger.addEventListener('click', function () {
+                    hamburger.classList.toggle('open');
+                    navLinks.classList.toggle('open');
+                    const expanded = hamburger.getAttribute('aria-expanded') === 'true';
+                    hamburger.setAttribute('aria-expanded', String(!expanded));
+                });
+            }
+
+            // User dropdown toggle
+            const dropdown = document.getElementById('userDropdown');
+            if (dropdown) {
+                const toggle = dropdown.querySelector('.user-dropdown-toggle');
+                toggle.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    dropdown.classList.toggle('open');
+                    const expanded = toggle.getAttribute('aria-expanded') === 'true';
+                    toggle.setAttribute('aria-expanded', String(!expanded));
+                });
+                document.addEventListener('click', function () {
+                    dropdown.classList.remove('open');
+                    toggle.setAttribute('aria-expanded', 'false');
+                });
+            }
+
+            // Logout button
+            const logoutBtn = document.getElementById('logoutBtn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', async function () {
+                    try {
+                        await fetch('/auth/logout', { method: 'POST' });
+                    } catch (e) {
+                        // ignore network errors during logout
+                    }
+                    window.location.href = '/';
+                });
+            }
+        })();
+
+        // Unread badge polling (every 5 seconds, only if logged in)
+        (function () {
+            const badge = document.getElementById('navUnreadBadge');
+            if (!badge) return;
+
+            async function pollUnread() {
+                try {
+                    const res = await fetch('/api/messages/unread-count');
+                    if (res.ok) {
+                        const data = await res.json();
+                        const count = data.count || 0;
+                        badge.textContent = count > 0 ? (count > 99 ? '99+' : String(count)) : '';
+                        badge.setAttribute('data-count', String(count));
+                    }
+                } catch (e) {
+                    // silently ignore polling errors
+                }
+            }
+
+            pollUnread();
+            setInterval(pollUnread, 5000);
+        })();
+    </script>
+    {% block scripts %}{% endblock %}
+</body>
+
+</html>

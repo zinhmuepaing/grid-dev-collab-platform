@@ -1,0 +1,228 @@
+/* ===========================================
+   Grid — Badges
+   Skill pills, status indicators, match bars
+   =========================================== */
+
+/* ---- Skill Badge (Pill) ---- */
+
+.skill-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 10px;
+    font-size: var(--text-xs);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-primary);
+    background-color: var(--color-primary-muted);
+    border-radius: var(--radius-full);
+    white-space: nowrap;
+    line-height: 1.5;
+}
+
+.skill-badge.beginner {
+    color: var(--color-text-muted);
+    background-color: rgba(110, 118, 129, 0.15);
+}
+
+.skill-badge.intermediate {
+    color: var(--color-primary);
+    background-color: var(--color-primary-muted);
+}
+
+.skill-badge.advanced {
+    color: var(--color-accent);
+    background-color: var(--color-accent-muted);
+}
+
+/* ---- Event / Topic Tag ---- */
+
+.tag-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    font-size: 11px;
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-muted);
+    background-color: rgba(110, 118, 129, 0.12);
+    border-radius: var(--radius-full);
+    white-space: nowrap;
+}
+
+/* ---- Status Badge ---- */
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px;
+    font-size: var(--text-xs);
+    font-weight: var(--font-weight-medium);
+    border-radius: var(--radius-full);
+    white-space: nowrap;
+    line-height: 1.5;
+}
+
+.status-badge::before {
+    content: '';
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.status-badge.status-active {
+    color: var(--color-accent);
+    background-color: var(--color-accent-muted);
+}
+
+.status-badge.status-active::before {
+    background-color: var(--color-accent);
+}
+
+.status-badge.status-pending {
+    color: #d29922;
+    background-color: rgba(210, 153, 34, 0.15);
+}
+
+.status-badge.status-pending::before {
+    background-color: #d29922;
+}
+
+.status-badge.status-inactive {
+    color: var(--color-text-muted);
+    background-color: rgba(110, 118, 129, 0.12);
+}
+
+.status-badge.status-inactive::before {
+    background-color: var(--color-text-muted);
+}
+
+.status-badge.status-declined {
+    color: var(--color-danger);
+    background-color: var(--color-danger-muted);
+}
+
+.status-badge.status-declined::before {
+    background-color: var(--color-danger);
+}
+
+/* ---- Match Score Bar ---- */
+
+.match-score-bar {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-1);
+    width: 100%;
+}
+
+.match-score-track {
+    flex: 1;
+    height: 8px;
+    background-color: rgba(110, 118, 129, 0.15);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+}
+
+.match-score-fill {
+    height: 100%;
+    border-radius: var(--radius-full);
+    background: linear-gradient(90deg, var(--color-primary), var(--color-accent));
+    transition: width var(--transition-slow);
+    min-width: 2px;
+}
+
+.match-score-value {
+    font-size: var(--text-xs);
+    font-weight: var(--font-weight-bold);
+    font-family: var(--font-mono);
+    color: var(--color-accent);
+    min-width: 36px;
+    text-align: right;
+}
+
+/* Score color ranges */
+.match-score-bar.score-high .match-score-fill {
+    background: linear-gradient(90deg, var(--color-accent), #56d364);
+}
+
+.match-score-bar.score-high .match-score-value {
+    color: var(--color-accent);
+}
+
+.match-score-bar.score-medium .match-score-fill {
+    background: linear-gradient(90deg, #d29922, #e3b341);
+}
+
+.match-score-bar.score-medium .match-score-value {
+    color: #d29922;
+}
+
+.match-score-bar.score-low .match-score-fill {
+    background: linear-gradient(90deg, var(--color-danger), #f85149);
+}
+
+.match-score-bar.score-low .match-score-value {
+    color: var(--color-danger);
+}
+
+/* ---- Unread Badge (Red Circle) ---- */
+
+.unread-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    font-size: 11px;
+    font-weight: var(--font-weight-bold);
+    color: #ffffff;
+    background-color: var(--color-danger);
+    border-radius: var(--radius-full);
+    line-height: 1;
+}
+
+.unread-badge:empty {
+    display: none;
+}
+
+/* ---- Count Badge (Generic) ---- */
+
+.count-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    font-size: 11px;
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text);
+    background-color: rgba(110, 118, 129, 0.2);
+    border-radius: var(--radius-full);
+    line-height: 1;
+}
+
+/* ---- Role Badge ---- */
+
+.role-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    font-size: 10px;
+    font-weight: var(--font-weight-bold);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-radius: var(--radius-sm);
+    line-height: 1.6;
+}
+
+.role-badge.role-owner {
+    color: #d29922;
+    background-color: rgba(210, 153, 34, 0.15);
+}
+
+.role-badge.role-member {
+    color: var(--color-text-muted);
+    background-color: rgba(110, 118, 129, 0.12);
+}

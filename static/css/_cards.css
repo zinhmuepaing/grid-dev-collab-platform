@@ -1,0 +1,402 @@
+/* ===========================================
+   Grid — Cards
+   Event cards, user cards, team cards
+   =========================================== */
+
+/* ---- Base Card ---- */
+
+.card {
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-3);
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.card:hover {
+    border-color: #484f58;
+}
+
+.card-clickable {
+    cursor: pointer;
+}
+
+.card-clickable:hover {
+    box-shadow: var(--shadow-md);
+    border-color: var(--color-primary);
+}
+
+.card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: var(--spacing-2);
+}
+
+.card-body {
+    margin-bottom: var(--spacing-2);
+}
+
+.card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: var(--spacing-2);
+    border-top: 1px solid var(--color-border);
+}
+
+/* ---- Event Card ---- */
+
+.event-card {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.event-card .event-image {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+    border-radius: var(--radius) var(--radius) 0 0;
+    margin: calc(-1 * var(--spacing-3));
+    margin-bottom: var(--spacing-2);
+    width: calc(100% + var(--spacing-3) * 2);
+}
+
+.event-card .event-title {
+    font-size: var(--text-lg);
+    font-weight: var(--font-weight-semibold);
+    color: #e6edf3;
+    margin-bottom: var(--spacing-1);
+    line-height: var(--leading-tight);
+}
+
+.event-card .event-title a {
+    color: inherit;
+}
+
+.event-card .event-title a:hover {
+    color: var(--color-primary);
+    text-decoration: none;
+}
+
+.event-card .event-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+    margin-bottom: var(--spacing-2);
+}
+
+.event-card .event-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.event-card .event-description {
+    font-size: var(--text-sm);
+    color: var(--color-text);
+    line-height: var(--leading-normal);
+    margin-bottom: var(--spacing-2);
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.event-card .event-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: var(--spacing-2);
+}
+
+.event-card .event-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: var(--spacing-2);
+    border-top: 1px solid var(--color-border);
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+}
+
+.event-card .interested-count {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* ---- User Card ---- */
+
+.user-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: var(--spacing-4) var(--spacing-3);
+}
+
+.user-card .user-avatar {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    border: 3px solid var(--color-border);
+    object-fit: cover;
+    margin-bottom: var(--spacing-2);
+    transition: border-color var(--transition-fast);
+}
+
+.user-card:hover .user-avatar {
+    border-color: var(--color-primary);
+}
+
+.user-card .user-name {
+    font-size: var(--text-lg);
+    font-weight: var(--font-weight-semibold);
+    color: #e6edf3;
+    margin-bottom: 2px;
+}
+
+.user-card .user-handle {
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+    font-family: var(--font-mono);
+    margin-bottom: var(--spacing-2);
+}
+
+.user-card .user-skills {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 6px;
+    margin-bottom: var(--spacing-2);
+}
+
+.user-card .user-match {
+    width: 100%;
+    padding-top: var(--spacing-2);
+    border-top: 1px solid var(--color-border);
+}
+
+.user-card .match-label {
+    font-size: var(--text-xs);
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 6px;
+}
+
+.user-card .match-percent {
+    font-size: var(--text-2xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-accent);
+    font-family: var(--font-mono);
+}
+
+/* ---- Team Card ---- */
+
+.team-card {
+    display: flex;
+    flex-direction: column;
+}
+
+.team-card .team-name {
+    font-size: var(--text-lg);
+    font-weight: var(--font-weight-semibold);
+    color: #e6edf3;
+    margin-bottom: var(--spacing-1);
+}
+
+.team-card .team-event {
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+    margin-bottom: var(--spacing-2);
+}
+
+.team-card .team-members {
+    display: flex;
+    align-items: center;
+    margin-bottom: var(--spacing-2);
+}
+
+.team-card .team-members-avatars {
+    display: flex;
+}
+
+.team-card .team-members-avatars img {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 2px solid var(--color-surface);
+    object-fit: cover;
+    margin-left: -8px;
+}
+
+.team-card .team-members-avatars img:first-child {
+    margin-left: 0;
+}
+
+.team-card .team-member-count {
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+    margin-left: var(--spacing-1);
+}
+
+.team-card .team-status {
+    font-size: var(--text-xs);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.team-card .team-discord-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: var(--text-sm);
+    color: #5865F2;
+}
+
+.team-card .team-discord-link:hover {
+    text-decoration: underline;
+}
+
+/* ---- Feature Card (Landing page) ---- */
+
+.feature-card {
+    text-align: center;
+    padding: var(--spacing-4);
+}
+
+.feature-card .feature-icon {
+    width: 48px;
+    height: 48px;
+    margin: 0 auto var(--spacing-2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--color-primary-muted);
+    border-radius: var(--radius-lg);
+    font-size: var(--text-2xl);
+}
+
+.feature-card .feature-icon.accent {
+    background-color: var(--color-accent-muted);
+}
+
+.feature-card h3 {
+    font-size: var(--text-lg);
+    margin-bottom: var(--spacing-1);
+}
+
+.feature-card p {
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+    line-height: var(--leading-relaxed);
+}
+
+/* ---- Like Button ---- */
+
+.btn-like {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: var(--text-sm);
+    padding: 6px 12px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    background: transparent;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    transition: all 150ms ease;
+}
+
+.btn-like:hover {
+    border-color: #484f58;
+    color: var(--color-text);
+}
+
+.btn-like.liked {
+    border-color: var(--color-danger);
+    color: var(--color-danger);
+}
+
+.btn-like.liked:hover {
+    background: rgba(248, 81, 73, 0.1);
+}
+
+.btn-like.they-liked {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+    background: rgba(88, 166, 255, 0.08);
+    animation: pulse-like 2s ease-in-out infinite;
+}
+
+.btn-like.they-liked:hover {
+    background: rgba(88, 166, 255, 0.18);
+    animation: none;
+}
+
+@keyframes pulse-like {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(88, 166, 255, 0.3); }
+    50% { box-shadow: 0 0 0 4px rgba(88, 166, 255, 0); }
+}
+
+.btn-like.mutual {
+    border-color: var(--color-accent);
+    background: var(--color-accent);
+    color: #fff;
+}
+
+.btn-like.mutual:hover {
+    opacity: 0.9;
+}
+
+@keyframes matchPulse {
+    0%   { transform: scale(1); }
+    50%  { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+.btn-like.match-flash {
+    animation: matchPulse 0.5s ease 2;
+}
+
+/* Inline like indicator for conversation list */
+.conv-like-indicator {
+    font-size: var(--text-xs);
+    margin-top: 2px;
+}
+
+.conv-like-indicator.mutual {
+    color: var(--color-accent);
+}
+
+.conv-like-indicator.they-liked {
+    color: var(--color-primary);
+}
+
+.conv-like-indicator.i-liked {
+    color: var(--color-danger);
+}
+
+/* ---- Empty State Card ---- */
+
+.empty-state {
+    text-align: center;
+    padding: var(--spacing-8) var(--spacing-4);
+    color: var(--color-text-muted);
+}
+
+.empty-state h3 {
+    color: var(--color-text);
+    margin-bottom: var(--spacing-1);
+}
+
+.empty-state p {
+    margin-bottom: var(--spacing-3);
+    color: var(--color-text-muted);
+}

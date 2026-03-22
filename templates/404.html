@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Page Not Found{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="error-page">
+        <div class="error-code">404</div>
+        <h1>Page not found</h1>
+        <p class="text-muted">
+            The page you're looking for doesn't exist or has been moved.
+        </p>
+        <a href="/" class="btn btn-primary">Back to Home</a>
+    </div>
+</div>
+
+<style>
+    .error-page {
+        text-align: center;
+        padding: var(--spacing-10) 0;
+        max-width: 480px;
+        margin: 0 auto;
+    }
+
+    .error-code {
+        font-size: 6rem;
+        font-weight: var(--font-weight-bold);
+        font-family: var(--font-mono);
+        color: var(--color-text-muted);
+        line-height: 1;
+        margin-bottom: var(--spacing-2);
+        opacity: 0.3;
+    }
+
+    .error-page h1 {
+        margin-bottom: var(--spacing-1);
+    }
+
+    .error-page p {
+        margin-bottom: var(--spacing-4);
+        font-size: var(--text-lg);
+    }
+</style>
+{% endblock %}
